@@ -19,21 +19,40 @@ const reducer = (state = initialState, action) => {
       return { 
         ...state,
         sessionLength: newSessionLength,
-        timeLeft: state.timeLeft === 'Session' && !state.isRunning ? newSessionLength * 60 : state.timeLeft,
+        timeLeft: state.timerLabel === 'Session' && !state.isRunning ? newSessionLength * 60 : state.timeLeft,
       }
     case ActionType.SET_TIMER_LABEL:
       return { ...state, timerLabel: action.payload }
     case ActionType.SET_TIME_LEFT:
       return { ...state, timeLeft: action.payload }
+    case ActionType.DECREMENT_TIME_LEFT: 
+      return {
+        ...state,
+        timeLeft: state.timeLeft - 1 
+      }
     case ActionType.SET_IS_RUNNING:
       return { ...state, isRunning: action.payload }
     case ActionType.SET_TIMER_INTERVAL_ID:
       return { ...state, timerIntervalId: action.payload }
-    case ActionType.SET_RESET_ALL:
+    case ActionType.RESET_ALL:
       if (state.timerIntervalId) {
         clearInterval(state.timerIntervalId)
       }
       return { ...initialState }
+    case ActionType.TOGGLE_TIMER_PHASE: 
+      const nextTimerLabel  = state.timerLabel === 'Session' ? 'Break' : 'Session';
+      const nextTimeLeft = nextTimerLabel === "Session" ? state.sessionLength * 60 : state.breakLength * 60
+
+      if(state.timerIntervalId) {
+        clearInterval(state.timerIntervalId)
+      }
+      return {
+        ...state,
+        timerLabel: nextTimerLabel,
+        timeLeft: nextTimeLeft,
+        isRunning: true,
+        timerIntervalId: null
+      }
     default:
       return state
   }
